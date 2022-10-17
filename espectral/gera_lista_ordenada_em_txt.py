@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 31 19:21:29 2021
+Created on Mon Jun 21 23:14:40 2021
 
-gera lista ordenada com base em minha ordem nos VCs do spharm_1343
+Gera lista ordenada em txt de acordo com ordem que quiser:
+minha ordem
+lex
+revlex
+
+A lista ordenada será a com base no arquivo 'dic.txt' ou outra especificada
 
 @author: kobashi
 """
 
-import spharm_1343
+
+import sys
 import pickle
+
+
+with open('dic_coef_200.txt', 'rb') as handle:
+  dict_pickle = pickle.loads(handle.read())
+        
+
 
 
 
@@ -24,10 +36,10 @@ def ordem_lexicografica(v1, v2):
   
     return 0
         
-        
+
 
 def ordem_completa_modulo(v1, v2):
-    """retorna se vetor 1 eh maior, -1 se menor ou 0 igual ao vetor 2 comparando posicao a posicao
+    """retorna se vetor 1 eh maior, -1 se menor ou 0 igual ao vetor 2 comparando a somatoria de todas coordenadas dos vetores
     
     v1 > v2: 1
     v1 < v2: -1
@@ -58,6 +70,8 @@ def ordem_completa_modulo(v1, v2):
         
         for p1, p2 in zip(v1, v2):
             
+            #calcula diferenca em modulo. A ideia eh ver qual coordenada tem maior diferenca e ai a balanca pesa para o lado dele
+            #tem q verificar se no caso dos vetores (10,0) e (0,10) ele classifica o primeiro vetor como maior, igual na ordem lex 
             if abs(p1) > abs(p2):
                 p1menosp2 = abs(p1) - abs(p2)
                 if p1menosp2 > maiordiferenca:
@@ -89,26 +103,7 @@ def ordem_completa_modulo(v1, v2):
         
         
         
-# u = (0,3,5,7) 
-# v = (1,2,8,6)
-# u = (2,2) 
-# v = (1,3)
-# print(ordem_completa_modulo(u, v))
-        
-        
-        
    
-
-       
-#se somar os elementos de cada vetor e comparar? 
-
-
-#inves de aumentar o contador, incrementar em modulo da diferenca
-#se empatar, usar lexicografica
-       
-
-
-
 
         
 #ordenacao nlogn
@@ -134,7 +129,7 @@ def mergeSort(alist):
         while i < len(lefthalf) and j < len(righthalf):
             #if lefthalf[i] > righthalf[j]:           
            
-            if ordem_completa_modulo(spharm_1343.vetor_caract(lefthalf[i]), spharm_1343.vetor_caract(righthalf[j])) == -1:                
+            if ordem_completa_modulo(dict_pickle[lista[i]], dict_pickle[lista[j]]) == -1:                
                 alist[k]=lefthalf[i]
                 i=i+1
             else:
@@ -155,24 +150,65 @@ def mergeSort(alist):
     return alist
 
 
+       
 
-# lista_numeros = list(range(1, 381)) 
-# lista_ordenada_mergesort = mergeSort(lista_numeros)
-# ##salvar lista ordenada em arquivo pickle 
-# with open('lista_spharm_1343_ordem_completa_modulo.txt', 'wb') as handle:
-#   pickle.dump(lista_ordenada_mergesort, handle)
-# print('pickle gerado')
+
+def ordem_lexicografica_reversa(v1, v2):
+    """retorna se vetor 1 eh maior, -1 se menor ou 0 igual ao vetor 2 comparando posicao a posicao
+    """        
+            
+    for p1, p2 in zip(reversed(v1), reversed(v2)):
+        if p1 > p2:    
+            return 1
+        if p1 < p2:
+            return -1
+
+    return 0
         
 
-# para printar as listas    
-# with open('lista_spharm_1343_minhaordem.txt', 'rb') as handle:
-#   w = pickle.loads(handle.read())
-#   print(w)
-
-# with open('lista_spharm_1343_ordem_completa_modulo.txt', 'rb') as handle:
-#   w = pickle.loads(handle.read())
-#   print(w)
-
-
-
+def ordena_dict():  
     
+    lista = list(range(1, 381)) 
+
+    #ORDENACAO    
+    for passnum in range(len(lista)-1,0,-1):
+        for i in range(passnum):
+
+            if ordem_lexicografica(dict_pickle[lista[i]], dict_pickle[lista[i + 1]]) == 1:  
+          
+                temp = lista[i]
+                lista[i] = lista[i+1]
+                lista[i+1] = temp
+    
+    #imprime lista ordenada pela ordem inventada 
+    #print(lista)
+    return lista
+
+
+#usando mergesort 
+lista = list(range(1, 381)) 
+lista_ordenada = mergeSort(lista)
+print(lista_ordenada)
+
+##usando bubblesort 
+#lista_ordenada = ordena_dict()
+
+##salvar lista ordenada em arquivo pickle 
+with open('lista_ordenada_ordemcompletamodulo_200.txt', 'wb') as handle:
+  pickle.dump(lista_ordenada, handle)
+print('pickle gerado')
+
+### como abrir a lista
+# with open('lista_ordenada_minhaordem_50.txt', 'rb') as handle:
+#   lista_print = pickle.loads(handle.read())
+#   print(lista_print)
+
+
+
+
+
+
+
+
+
+

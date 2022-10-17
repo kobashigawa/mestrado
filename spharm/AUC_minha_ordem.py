@@ -13,8 +13,6 @@ pag 56
 @author: kobashi
 """
 
-
-
 from sklearn.metrics import auc
 from matplotlib import pyplot
 import pickle
@@ -23,15 +21,15 @@ import numpy as np
 
 #DADOS DE INPUT 
 n = 15
-listatxt = 'lista_spharm_minhaordem.txt' 
-dado = 'var'
+#listatxt = 'lista_spharm_1343_minhaordem.txt' 
+listatxt = 'lista_spharm_1343_ordem_completa_modulo.txt'
+dado = 'max'
 
 
 #dado = 'min'
 # dado = 'max'
 # dado = 'med'
 # dado = 'var'
-
 
 
 def classe(obj):
@@ -215,6 +213,8 @@ vasos = []
 quadrupedes = []
 
 
+
+
 ##popula listas com AUCs de objetos por classe
 for i in range(381):
   
@@ -258,8 +258,9 @@ for i in range(381):
         quadrupedes.append(gera_AUC(i, n, plot))
     
 
-classes = [quadrupedes,  humanos,  passaros,  oculos,  aviaos,  ursinhos,  peixes,  vasos,  polvos,  alicates,  cadeiras,  tatus,  maos,  formigas,  mesas,  copos,  rolamentos,  dorsos,  mechas]
-
+#classes = [quadrupedes,  humanos,  passaros,  oculos,  aviaos,  ursinhos,  peixes,  vasos,  polvos,  alicates,  cadeiras,  tatus,  maos,  formigas,  mesas,  copos,  rolamentos,  dorsos,  mechas]
+#classes = [aviaos, formigas, tatus, rolamentos, passaros, dorsos, cadeiras, copos, peixes, quadrupedes, oculos, maos, humanos, mechas, polvos, alicates, mesas, ursinhos, vasos]
+classes = [alicates, aviaos, dorsos, cadeiras, formigas, humanos, maos, mechas, mesas, oculos, passaros, peixes, polvos, quadrupedes, rolamentos, tatus, ursinhos, vasos, copos]
 
 for lista in classes:    
     

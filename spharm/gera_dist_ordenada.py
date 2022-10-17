@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 31 15:06:49 2021
-
-AUC de distância spharm
+Created on Sat Nov  6 01:31:30 2021
 
 @author: kobashi
 """
@@ -13,6 +11,10 @@ from sklearn.metrics import auc
 from matplotlib import pyplot
 import pickle
 import numpy as np
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
+import spharm
+sys.path.append('D:/Google Drive/cbir3d_kobashi/Python/ordem-inventada')
 
 
 def ordena_dict(dict_distancia):  
@@ -60,7 +62,7 @@ def mergeSort(alist):
     if len(alist)>1:
         
         # para monitoramento
-        #print(len(alist))
+        print(len(alist))
         
         mid = len(alist)//2
         lefthalf = alist[:mid]
@@ -97,24 +99,23 @@ def mergeSort(alist):
 
 
 
+
 # rotina para gerar listas de distancias em ordem crescente
 for i in(range(381)):
     if i > 0:        
 
         #pega arquivo de distancias do objeto i
-        #file = 'dist_manhattan/' + str(i) + '.txt'        
-        file = 'dist_euclidiana/' + str(i) + '.txt'      
+        file = 'dist_manhattan/' + str(i) + '.txt'        
         with open(file, 'rb') as handle:
             dic = pickle.loads(handle.read())   
             #print(dic)          
             #devolve uma lista ordenada com o numero de objs em ordem crescente
-            lista_ordenada = ordena_dict(dic)      
-            #lista_ordenada = mergeSort(dic)
+            lista_ordenada = ordena_dict(dic)            
             #print(lista_ordenada)
             
             #salvar lista ordenada em arquivo pickle 
-            file = 'dist_eucli_ordenadas/' + str(i) + '.txt'
-            #file = 'dist_manhattan_ordenadas/' + str(i) + '.txt'
+            #file = 'dist_eucli_ordenadas/' + str(i) + '.txt'
+            file = 'dist_manhattan_ordenadas/' + str(i) + '.txt'
             with open(file, 'wb') as handle:
               pickle.dump(lista_ordenada, handle)
               print(i)

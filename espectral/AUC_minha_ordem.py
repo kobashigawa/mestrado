@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 31 16:48:18 2021
+Created on Thu Sep  2 20:49:50 2021
 
-pegar arquivos de dist_eucli_ordenadas/ ou dist_manhattan_ordenadas/
-e gerar AUCs de acordo com n 
+@author: kobashi
+
+
+grafico PxR e AUC iterativos
+com base no
+D:\Google Drive\EACH meu\Mestrado\Dissertação\Artigos\LeilaCristinaCarneiroBergamascoCorr18.pdf
+pag 56 
 
 @author: kobashi
 """
@@ -12,6 +17,19 @@ from sklearn.metrics import auc
 from matplotlib import pyplot
 import pickle
 import numpy as np
+
+
+#DADOS DE INPUT 
+n = 15
+#listatxt = 'lista_ordenada_ordemcompletamodulo_50.txt' 
+listatxt = 'lista_ordenada_ordemcompletamodulo_200.txt'
+dado = 'max'
+
+
+#dado = 'min'
+# dado = 'max'
+# dado = 'med'
+# dado = 'var'
 
 
 def classe(obj):
@@ -59,6 +77,49 @@ def classe(obj):
 
 
 
+
+def lista_proximos(obj, qtde):
+    """ retorna lista dos objs mais proximos. 
+    Sempre vai ter q retornar a quantidade desejada, entao se o elemento estiver nas pontas,
+    pegara so de um lado.
+    Usa uma lista auxiliar que remove toda vez q um objeto eh pegado e diminui o contador.
+    
+    Quantidade eh o total de objetos a olhar diretamente pro lado direito ou esquerdo ao elemento 
+    """
+   
+    #achar onde obj esta na lista
+    #pegar n objs a esq e a dir dele 
+    #retornar essa sublista 
+        
+    lista = []    
+    
+    with open(listatxt, 'rb') as handle:
+        lista_temp = pickle.loads(handle.read())    
+    #     # print(lista_temp)
+    
+
+    index = lista_temp.index(obj)        
+
+    while qtde > 0:
+        
+        # direita
+        if index + 1 < len(lista_temp):
+            
+            lista.append(lista_temp[index + 1])                  
+            qtde = qtde - 1
+            lista_temp.pop(index + 1)
+            index = lista_temp.index(obj)
+                
+        # esquerda
+        if index - 1 >= 0:  
+            
+            lista.append(lista_temp[index - 1])                    
+            qtde = qtde - 1
+            lista_temp.pop(index - 1)
+            index = lista_temp.index(obj)
+        
+    return lista 
+
     
 #print(lista_proximos(319, 10)) 
 
@@ -70,84 +131,66 @@ def gera_AUC(obj, qtde, plot):
     plot = se quer que plote, True ou False 
     
     '''  
+
+    classe_obj = classe(obj)
+  
+    proximos = lista_proximos(obj, qtde)   
+    #print(proximos)
     
-    #pega arquivo de distancias do objeto i
-    file = 'dist_eucli_ordenadas/' + str(obj) + '.txt'      
-    #file = 'dist_manhattan_ordenadas/' + str(obj) + '.txt'     
-       
+    precisoes = []
+    revocacoes = []
+    
+    relevantes = 0
+    recuperados = 0
     
     
-    with open(file, 'rb') as handle:
-        lista = pickle.loads(handle.read())           
-    
-        classe_obj = classe(obj)
-      
-        #dropa o primeiro elemento q sempre sera o proprio obj (menor distancia = 0)
-        lista.pop(0)
-        #corta lista para o numero de n 
-        proximos = lista[:qtde]  
-        #print(proximos)
+    for i in proximos:        
         
-        precisoes = []
-        revocacoes = []
-        
-        relevantes = 0
-        recuperados = 0        
-        
-        for i in proximos:        
+        #print('i = ', i)
+        recuperados = recuperados + 1
+        if classe_obj == classe(i):
             
-            #print('i = ', i)
-            recuperados = recuperados + 1
-            if classe_obj == classe(i):
-                
-                relevantes = relevantes + 1           
+            relevantes = relevantes + 1           
+        
+            #print('Logistic: f1=%.3f auc=%.3f' % (lr_f1, lr_auc))
+            # print('precisao: %i / %i ' % (relevantes, recuperados))
+            # print('revocacao: %i / %i  ' % (recuperados, qtde))
             
-                #print('Logistic: f1=%.3f auc=%.3f' % (lr_f1, lr_auc))
-                # print('precisao: %i / %i ' % (relevantes, recuperados))
-                # print('revocacao: %i / %i  ' % (recuperados, qtde))
-                
-                precisoes.append(relevantes/recuperados)
-                revocacoes.append(recuperados/qtde)    
-                
-         
-    #    print(precisoes)
-    #    print(revocacoes)   
+            precisoes.append(relevantes/recuperados)
+            revocacoes.append(recuperados/qtde)    
+            
+     
+#             print(precisoes)
+#    print(revocacoes)   
+
+    if len(revocacoes) < 2:
+        return 0 
+
+    auc1 = auc(revocacoes, precisoes)  
     
-        if len(revocacoes) < 2:
-            return 0 
+    if plot and len(revocacoes) > 2:
+        #plot the precision-recall curves
+        pyplot.plot(revocacoes, precisoes, marker='.', label=str(obj))
+        # axis labels
+        pyplot.xlabel('Revocação')
+        pyplot.ylabel('Precisão')
+        # show the legend
+        pyplot.legend()
+        # show the plot
+        pyplot.show()
+
     
-        auc1 = auc(revocacoes, precisoes)  
-        
-        if plot and len(revocacoes) > 2:
-            #plot the precision-recall curves
-            pyplot.plot(revocacoes, precisoes, marker='.', label=str(obj))
-            # axis labels
-            pyplot.xlabel('Recall')
-            pyplot.ylabel('Precision')
-            # show the legend
-            pyplot.legend()
-            # show the plot
-            pyplot.show()
+    return auc1 
     
-        
-        return auc1 
-    
-#print(gera_AUC(1, 30, True))
-#print(gera_AUC(377, 15, True))
+#print(gera_AUC(16, 5, False))
+#print(gera_AUC(377, 15, False))
 
 
+#gerar valores de min, max e media 
+    
 
-##DADOS DE INPUT 
-n = 15
-dado = 'var'
+
 plot = False
-
-# dado = 'min'
-# dado = 'max'
-# dado = 'med'
-# dado = 'var'
-##DADOS DE INPUT 
-
 
 humanos = []
 copos = []
@@ -170,7 +213,9 @@ vasos = []
 quadrupedes = []
 
 
-# ##popula listas com AUCs de objetos por classe
+
+
+##popula listas com AUCs de objetos por classe
 for i in range(381):
   
     if i >= 1 and i <= 20:    
@@ -214,9 +259,8 @@ for i in range(381):
     
 
 #classes = [quadrupedes,  humanos,  passaros,  oculos,  aviaos,  ursinhos,  peixes,  vasos,  polvos,  alicates,  cadeiras,  tatus,  maos,  formigas,  mesas,  copos,  rolamentos,  dorsos,  mechas]
-
-classes = [aviaos, formigas, tatus, rolamentos, passaros, dorsos, cadeiras, copos, peixes, quadrupedes, oculos, maos, humanos, mechas, polvos, alicates, mesas, ursinhos, vasos]
-
+#classes = [aviaos, formigas, tatus, rolamentos, passaros, dorsos, cadeiras, copos, peixes, quadrupedes, oculos, maos, humanos, mechas, polvos, alicates, mesas, ursinhos, vasos]
+classes = [alicates, aviaos, dorsos, cadeiras, formigas, humanos, maos, mechas, mesas, oculos, passaros, peixes, polvos, quadrupedes, rolamentos, tatus, ursinhos, vasos, copos]
 
 for lista in classes:    
     
@@ -231,3 +275,8 @@ for lista in classes:
         var_100 = np.var(lista) * 100
         print(var_100)
   
+
+
+
+
+
